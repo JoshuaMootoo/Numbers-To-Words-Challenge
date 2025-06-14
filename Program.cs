@@ -46,9 +46,9 @@ namespace NumberToWords
             { 9, "Ninety" }
         };
 
-        static string hundred = "Hundred",
-               thousand = "Thousand",
-               andWord = "and",
+        static string hundred = " Hundred",
+               thousand = " Thousand",
+               andWord = " and ",
                comma = ",",
                dash = "-";
 
@@ -73,28 +73,58 @@ namespace NumberToWords
             Console.WriteLine($"In words: {result}");
         }
 
+        static string TensAndUnits(int number)
+        {
+            string sixDigitNumber = number.ToString("D6");
+
+            string result = string.Empty;
+
+            // Sets the output to zero if the number is zero
+            if (int.Parse(sixDigitNumber) == 0) result = "Zero";
+
+            // Handles the case for numbers between 1 and 9
+            else if (units.ContainsKey(int.Parse(sixDigitNumber.Substring(5, 1))) && int.Parse(sixDigitNumber.Substring(4, 1)) == 0)
+                result = units[int.Parse(sixDigitNumber.Substring(5, 1))].ToString();
+
+            // Handles the case for numbers between 10 and 19
+            else if (int.Parse(sixDigitNumber.Substring(4, 2)) >= 10 && int.Parse(sixDigitNumber.Substring(4, 2)) <= 19)
+                result = teens[int.Parse(sixDigitNumber.Substring(4, 2))].ToString();
+
+            // Handles the case for numbers between 20 and 99 where the unit is not zero
+            else if (int.Parse(sixDigitNumber.Substring(4, 2)) > 19 && int.Parse(sixDigitNumber.Substring(5,1)) != 0)
+                result = tens[int.Parse(sixDigitNumber.Substring(4, 1))] + dash + units[int.Parse(sixDigitNumber.Substring(5, 1))].ToString();
+
+            // Handles the case for numbers between 20 and 99 where the unit is zero
+            else if (int.Parse(sixDigitNumber.Substring(4, 2)) > 19 && int.Parse(sixDigitNumber.Substring(5, 1)) == 0)
+                result = tens[int.Parse(sixDigitNumber.Substring(4, 1))];
+
+            return result;
+        }
+
+        static string Hundreds(int number)
+        {
+            string sixDigitNumber = number.ToString("D6");
+
+            string result = string.Empty;
+
+            Console.WriteLine(int.Parse(sixDigitNumber.Substring(3, 1)));
+
+            if (int.Parse(sixDigitNumber.Substring(3, 1)) == 0)
+                result = TensAndUnits(number);
+            // Handles the case for numbers between 100 and 999 where the tens and units are not zero
+            else if (int.Parse(sixDigitNumber.Substring(3, 1)) > 0 && int.Parse(sixDigitNumber.Substring(4,2)) != 0)
+                result = units[int.Parse(sixDigitNumber.Substring(3, 1))] + hundred + " " + andWord + " " + TensAndUnits(number);
+
+            // Handles the case for numbers between 100 and 999 where the tens and units are zero
+            else if (int.Parse(sixDigitNumber.Substring(3, 1)) > 0 && int.Parse(sixDigitNumber.Substring(4, 2)) == 0)
+                result = units[int.Parse(sixDigitNumber.Substring(3, 1))] + hundred;
+
+            return result;
+        }
 
         static string ConvertNumberToWords(int number)
         {
-            string sixDigitNumber = number.ToString("D6");
-            //Console.WriteLine($"Six-digit representation: {sixDigitNumber}");
-            
-            // Sets the output to zero if the number is zero
-            if (int.Parse(sixDigitNumber) == 0) return "Zero";
-            
-            // 
-            else if (units.ContainsKey(int.Parse(sixDigitNumber.Substring(5, 1))) && int.Parse(sixDigitNumber.Substring(4, 1)) == 0)
-                return units[int.Parse(sixDigitNumber.Substring(5, 1))].ToString();
-
-            else if (int.Parse(sixDigitNumber.Substring(4, 2)) >= 10 && int.Parse(sixDigitNumber.Substring(4, 2)) <= 19)
-                return teens[int.Parse(sixDigitNumber.Substring(4, 2))].ToString();
-
-            else if (int.Parse(sixDigitNumber.Substring(4, 2)) > 19)
-                return tens[int.Parse(sixDigitNumber.Substring(4, 1))] + dash + units[int.Parse(sixDigitNumber.Substring(5, 1))].ToString();
-
-            else return "Error: Number not supported";
-
-            
+            return Hundreds(number);
         }
     }
 }
@@ -102,16 +132,6 @@ namespace NumberToWords
 
 
 /*
-string input = Console.ReadLine();
-
-int inputNumber = int.Parse(input);
-Console.WriteLine($"You entered: {inputNumber}");
-int inputCharacrerCount = input.Length;
-Console.WriteLine($"Character count: {inputCharacrerCount}");
-
-
-
-
 01 - one
 02 - two
 03 - three
