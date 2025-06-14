@@ -49,7 +49,7 @@ namespace NumberToWords
         static string hundred = " Hundred",
                thousand = " Thousand",
                andWord = " and ",
-               comma = ",",
+               comma = ", ",
                dash = "-";
 
 
@@ -77,26 +77,31 @@ namespace NumberToWords
         {
             string sixDigitNumber = number.ToString("D6");
 
+            int _units = int.Parse(sixDigitNumber.Substring(5, 1));
+            int _teens = int.Parse(sixDigitNumber.Substring(4, 2));
+            int _tens = int.Parse(sixDigitNumber.Substring(4, 1));
+
+
             string result = string.Empty;
 
             // Sets the output to zero if the number is zero
             if (int.Parse(sixDigitNumber) == 0) result = "Zero";
 
             // Handles the case for numbers between 1 and 9
-            else if (units.ContainsKey(int.Parse(sixDigitNumber.Substring(5, 1))) && int.Parse(sixDigitNumber.Substring(4, 1)) == 0)
-                result = units[int.Parse(sixDigitNumber.Substring(5, 1))].ToString();
+            else if (units.ContainsKey(_units) && _tens == 0)
+                result = units[_units];
 
             // Handles the case for numbers between 10 and 19
-            else if (int.Parse(sixDigitNumber.Substring(4, 2)) >= 10 && int.Parse(sixDigitNumber.Substring(4, 2)) <= 19)
-                result = teens[int.Parse(sixDigitNumber.Substring(4, 2))].ToString();
+            else if (_teens >= 10 && _teens <= 19)
+                result = teens[_teens];
 
             // Handles the case for numbers between 20 and 99 where the unit is not zero
-            else if (int.Parse(sixDigitNumber.Substring(4, 2)) > 19 && int.Parse(sixDigitNumber.Substring(5,1)) != 0)
-                result = tens[int.Parse(sixDigitNumber.Substring(4, 1))] + dash + units[int.Parse(sixDigitNumber.Substring(5, 1))].ToString();
+            else if (_teens > 19 && int.Parse(sixDigitNumber.Substring(5,1)) != 0)
+                result = tens[_tens] + dash + units[_units];
 
             // Handles the case for numbers between 20 and 99 where the unit is zero
-            else if (int.Parse(sixDigitNumber.Substring(4, 2)) > 19 && int.Parse(sixDigitNumber.Substring(5, 1)) == 0)
-                result = tens[int.Parse(sixDigitNumber.Substring(4, 1))];
+            else if (_teens > 19 && _units == 0)
+                result = tens[_tens];
 
             return result;
         }
@@ -105,26 +110,64 @@ namespace NumberToWords
         {
             string sixDigitNumber = number.ToString("D6");
 
+            int _hundreds = int.Parse(sixDigitNumber.Substring(3, 1));
+            int _tensAndUnits = int.Parse(sixDigitNumber.Substring(4, 2));
+
             string result = string.Empty;
 
-            Console.WriteLine(int.Parse(sixDigitNumber.Substring(3, 1)));
-
-            if (int.Parse(sixDigitNumber.Substring(3, 1)) == 0)
+            if (_hundreds == 0)
                 result = TensAndUnits(number);
             // Handles the case for numbers between 100 and 999 where the tens and units are not zero
-            else if (int.Parse(sixDigitNumber.Substring(3, 1)) > 0 && int.Parse(sixDigitNumber.Substring(4,2)) != 0)
-                result = units[int.Parse(sixDigitNumber.Substring(3, 1))] + hundred + " " + andWord + " " + TensAndUnits(number);
+            else if (_hundreds > 0 && _tensAndUnits != 0)
+                result = units[_hundreds] + hundred + andWord + TensAndUnits(number);
 
             // Handles the case for numbers between 100 and 999 where the tens and units are zero
-            else if (int.Parse(sixDigitNumber.Substring(3, 1)) > 0 && int.Parse(sixDigitNumber.Substring(4, 2)) == 0)
-                result = units[int.Parse(sixDigitNumber.Substring(3, 1))] + hundred;
+            else if (_hundreds > 0 && _tensAndUnits == 0)
+                result = units[_hundreds] + hundred;
+
+            return result;
+        }
+
+        static string TenThousandsAndThousands(int number)
+        {
+            string sixDigitNumber = number.ToString("D6");
+
+            int _tenThousandsAndThousands = int.Parse(sixDigitNumber.Substring(1, 2));
+            int _tenThousands = int.Parse(sixDigitNumber.Substring(1, 1));
+            int _thousands = int.Parse(sixDigitNumber.Substring(2, 1));
+            int _hundreds = int.Parse(sixDigitNumber.Substring(3, 3));
+
+
+            string result = string.Empty;
+
+            if (_tenThousandsAndThousands == 0)
+                result = Hundreds(number);
+
+            else if (units.ContainsKey(_thousands) && _tenThousands == 0 && _hundreds != 0)
+                result = units[_thousands] + thousand + comma + Hundreds(number);
+
+            else if (units.ContainsKey(_thousands) && _tenThousands == 0 && _hundreds == 0)
+                result = units[_thousands] + thousand;
+
+            else if (int.Parse(sixDigitNumber.Substring(2, 2)) >= 10 && int.Parse(sixDigitNumber.Substring(2, 2)) <= 19 && _hundreds != 0)
+                result = teens[int.Parse(sixDigitNumber.Substring(2, 2))] + thousand + comma + Hundreds(number);
+
+            else if (int.Parse(sixDigitNumber.Substring(2, 2)) >= 10 && int.Parse(sixDigitNumber.Substring(2, 2)) <= 19 && _hundreds == 0)
+                result = teens[int.Parse(sixDigitNumber.Substring(2, 2))] + thousand;
+
+            else if (int.Parse(sixDigitNumber.Substring(2, 2)) > 19 && _hundreds != 0)
+                result = tens[_tenThousands] + dash + units[_thousands] + thousand + comma + Hundreds(number);
+
+            else if (int.Parse(sixDigitNumber.Substring(2, 2)) > 19 && _hundreds == 0)
+                result = tens[_tenThousands] + dash + units[_thousands] + thousand;
+
 
             return result;
         }
 
         static string ConvertNumberToWords(int number)
         {
-            return Hundreds(number);
+            return TenThousandsAndThousands(number);
         }
     }
 }
