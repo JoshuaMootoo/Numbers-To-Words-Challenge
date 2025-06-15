@@ -21,4 +21,5 @@ The goal is to write a CLI program that:
 ## Timeframe
 
 - **Started:** 14th June 2025
-- **Status:** In progress
+- **Status:** Completed
+- **Duration:** 1 day

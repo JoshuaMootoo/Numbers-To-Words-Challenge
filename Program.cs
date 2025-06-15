@@ -77,6 +77,7 @@ namespace NumberToWords
         {
             string sixDigitNumber = number.ToString("D6");
 
+            int sixDigitNumberInt = int.Parse(sixDigitNumber);
             int _units = int.Parse(sixDigitNumber.Substring(5, 1));
             int _teens = int.Parse(sixDigitNumber.Substring(4, 2));
             int _tens = int.Parse(sixDigitNumber.Substring(4, 1));
@@ -85,7 +86,7 @@ namespace NumberToWords
             string result = string.Empty;
 
             // Sets the output to zero if the number is zero
-            if (int.Parse(sixDigitNumber) == 0) result = "Zero";
+            if (sixDigitNumberInt == 0) result = "Zero";
 
             // Handles the case for numbers between 1 and 9
             else if (units.ContainsKey(_units) && _tens == 0)
@@ -96,7 +97,7 @@ namespace NumberToWords
                 result = teens[_teens];
 
             // Handles the case for numbers between 20 and 99 where the unit is not zero
-            else if (_teens > 19 && int.Parse(sixDigitNumber.Substring(5,1)) != 0)
+            else if (_teens > 19 && _units != 0)
                 result = tens[_tens] + dash + units[_units];
 
             // Handles the case for numbers between 20 and 99 where the unit is zero
@@ -135,7 +136,8 @@ namespace NumberToWords
             int _tenThousandsAndThousands = int.Parse(sixDigitNumber.Substring(1, 2));
             int _tenThousands = int.Parse(sixDigitNumber.Substring(1, 1));
             int _thousands = int.Parse(sixDigitNumber.Substring(2, 1));
-            int _hundreds = int.Parse(sixDigitNumber.Substring(3, 3));
+            int _hundreds = int.Parse(sixDigitNumber.Substring(3, 1));
+            int _tensAndUnits = int.Parse(sixDigitNumber.Substring(4, 2));
 
 
             string result = string.Empty;
@@ -143,31 +145,34 @@ namespace NumberToWords
             if (_tenThousandsAndThousands == 0)
                 result = Hundreds(number);
 
-            else if (units.ContainsKey(_thousands) && _tenThousands == 0 && _hundreds != 0)
-                result = units[_thousands] + thousand + comma + Hundreds(number);
+            else if (units.ContainsKey(_thousands) && _tenThousands == 0)
+            {
+                if (_hundreds != 0) result = units[_thousands] + thousand + comma + Hundreds(number);
+                else result = units[_thousands] + thousand;
+            }
 
-            else if (units.ContainsKey(_thousands) && _tenThousands == 0 && _hundreds == 0)
-                result = units[_thousands] + thousand;
+            else if (_tenThousandsAndThousands >= 10 && _tenThousandsAndThousands <= 19)
+            {
+                if (_hundreds != 0) result = teens[_tenThousandsAndThousands] + thousand + comma + Hundreds(number);
+                else if (_hundreds == 0 && _tensAndUnits != 0) result = teens[_tenThousandsAndThousands] + thousand + andWord + TensAndUnits(number);
+                else result = teens[_tenThousandsAndThousands] + thousand;
+            }
 
-            else if (int.Parse(sixDigitNumber.Substring(2, 2)) >= 10 && int.Parse(sixDigitNumber.Substring(2, 2)) <= 19 && _hundreds != 0)
-                result = teens[int.Parse(sixDigitNumber.Substring(2, 2))] + thousand + comma + Hundreds(number);
-
-            else if (int.Parse(sixDigitNumber.Substring(2, 2)) >= 10 && int.Parse(sixDigitNumber.Substring(2, 2)) <= 19 && _hundreds == 0)
-                result = teens[int.Parse(sixDigitNumber.Substring(2, 2))] + thousand;
-
-            else if (int.Parse(sixDigitNumber.Substring(2, 2)) > 19 && _hundreds != 0)
-                result = tens[_tenThousands] + dash + units[_thousands] + thousand + comma + Hundreds(number);
-
-            else if (int.Parse(sixDigitNumber.Substring(2, 2)) > 19 && _hundreds == 0)
-                result = tens[_tenThousands] + dash + units[_thousands] + thousand;
-
-
+            else if (_tenThousandsAndThousands > 19)
+            {
+                if (_hundreds != 0) result = tens[_tenThousands] + dash + units[_thousands] + thousand + comma + Hundreds(number);
+                else if (_hundreds == 0 && _tensAndUnits != 0) result = tens[_tenThousands] + dash + units[_thousands] + thousand + andWord + TensAndUnits(number);
+                else result = tens[_tenThousands] + dash + units[_thousands] + thousand;
+            }
             return result;
         }
 
         static string ConvertNumberToWords(int number)
         {
-            return TenThousandsAndThousands(number);
+            if (number == 100000)
+                return "One Hundred Thousand";
+            else
+                return TenThousandsAndThousands(number);
         }
     }
 }
